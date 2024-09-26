@@ -34,8 +34,20 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println(string(buff), "buffers")
-	fmt.Printf("Receiving buff : %v (%d)", buff[8:12], int32(binary.BigEndian.Uint32(buff[8:12])))
+	fmt.Printf("Receiving buff : %v (%d) | key version : %d : %d",
+		buff[8:12],
+		int32(binary.BigEndian.Uint32(buff[8:12])),
+		int32(binary.BigEndian.Uint16(buff[0:4])),
+		int32(binary.BigEndian.Uint16(buff[4:8])))
+
+	correlationID := buff[8:12]
+	version := buff[4:8]
+	if int(binary.BigEndian.Uint16(version)) > 4 || int(binary.BigEndian.Uint16(version)) < 0 {
+		version = []byte{0, 35}
+	}
+	// apiKey := buff[0:4]
 	res := make([]byte, len(buff))
-	copy(res[4:], buff[8:12])
+	copy(res[4:], correlationID)
+	copy(res[8:], version)
 	conn.Write(res)
 }
