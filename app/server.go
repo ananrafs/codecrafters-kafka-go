@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net"
 	"os"
@@ -33,5 +34,8 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println(string(buff), "buffers")
-	conn.Write([]byte{0, 0, 0, 0, 0, 0, 0, 7})
+	fmt.Printf("Receiving buff : %v (%d)", buff[8:12], int32(binary.BigEndian.Uint32(buff[8:12])))
+	res := make([]byte, len(buff))
+	copy(res[4:], buff[8:12])
+	conn.Write(res)
 }
